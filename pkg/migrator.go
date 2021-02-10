@@ -14,7 +14,7 @@ type Migrator struct {
 
 // CurrentDatabase ...
 func (m Migrator) CurrentDatabase() (name string) {
-	if dialector, ok := m.DB.Config.Dialector.(*Dialector); ok {
+	if dialector, ok := m.DB.Dialector.(Dialector); ok {
 		name = dialector.Database.Name()
 	}
 	return
@@ -22,20 +22,11 @@ func (m Migrator) CurrentDatabase() (name string) {
 
 // HasTable ...
 func (m Migrator) HasTable(value interface{}) bool {
-	// var count int64
-
-	// m.RunWithValue(value, func(stmt *gorm.Statement) error {
-	// 	currentDatabase := m.DB.Migrator().CurrentDatabase()
-	// 	return m.DB.Raw("SELECT count(*) FROM information_schema.tables WHERE table_schema = ? AND table_name = ? AND table_type = ?", currentDatabase, stmt.Table, "BASE TABLE").Row().Scan(&count)
-	// })
-
-	// return count > 0
-
 	var hasTable bool
 	var err error
 
 	err = m.RunWithValue(value, func(stmt *gorm.Statement) error {
-		if dialector, ok := m.DB.Config.Dialector.(*Dialector); ok {
+		if dialector, ok := m.DB.Dialector.(Dialector); ok {
 			currentDatabase := m.DB.Migrator().CurrentDatabase()
 			fmt.Println(currentDatabase)
 			hasTable, err = dialector.CollectionExists(stmt.Table)
@@ -52,13 +43,11 @@ func (m Migrator) HasTable(value interface{}) bool {
 
 // CreateTable ...
 func (m Migrator) CreateTable(values ...interface{}) error {
-	var err error
-	m.RunWithValue(values[0], func(stmt *gorm.Statement) error {
-		if dialector, ok := m.DB.Config.Dialector.(*Dialector); ok {
-			_, err = dialector.CreateCollection(stmt.Table)
+	return m.RunWithValue(values[0], func(stmt *gorm.Statement) error {
+		if dialector, ok := m.DB.Dialector.(Dialector); ok {
+			_, err := dialector.CreateCollection(stmt.Table)
 			return err
 		}
 		return ErrDatabaseConnectionFailed
 	})
-	return err
 }

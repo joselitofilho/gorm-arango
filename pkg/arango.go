@@ -138,6 +138,14 @@ func (dialector Dialector) Initialize(db *gorm.DB) error {
 	}
 	dialector.Database = database
 
+	db.Dialector = Dialector{
+		DriverName: dialector.DriverName,
+		Config:     dialector.Config,
+		Connection: connection,
+		Client:     client,
+		Database:   database,
+	}
+
 	return nil
 }
 
