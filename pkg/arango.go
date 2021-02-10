@@ -79,7 +79,7 @@ func (dialector Dialector) CreateDatabaseIfNeeded(ctx context.Context, databaseN
 
 // Initialize database based on dialector.Config.
 func (dialector Dialector) Initialize(db *gorm.DB) error {
-	ctx, cancel := context.WithDeadline(context.Background(), time.Now().Add(dialector.Config.Timeout*time.Second))
+	ctx, cancel := dialector.setupContext()
 	defer cancel()
 
 	if dialector.DriverName == "" {
@@ -141,6 +141,44 @@ func (dialector Dialector) Initialize(db *gorm.DB) error {
 	return nil
 }
 
+// CollectionExists checks if a collection exists.
+func (dialector Dialector) CollectionExists(collectionName string) (bool, error) {
+	ctx, cancel := dialector.setupContext()
+	defer cancel()
+
+	var err error
+	exists := false
+
+	if dialector.Database == nil {
+		return false, ErrDatabaseConnectionFailed
+	}
+
+	collections, err := dialector.Database.Collections(ctx)
+	if err != nil {
+		return false, err
+	}
+
+	for _, c := range collections {
+		if c.Name() == collectionName {
+			exists = true
+		}
+	}
+
+	return exists, nil
+}
+
+// CreateCollection ...
+func (dialector Dialector) CreateCollection(name string) (driver.Collection, error) {
+	ctx, cancel := dialector.setupContext()
+	defer cancel()
+
+	if dialector.Database == nil {
+		return nil, ErrDatabaseConnectionFailed
+	}
+
+	return dialector.Database.CreateCollection(ctx, name, &driver.CreateCollectionOptions{})
+}
+
 // Migrator ...
 func (dialector Dialector) Migrator(db *gorm.DB) gorm.Migrator {
 	// TODO: Implement
@@ -179,5 +217,10 @@ func (dialector Dialector) QuoteTo(writer clause.Writer, str string) {
 
 // Explain ...
 func (dialector Dialector) Explain(sql string, vars ...interface{}) string {
+	// TODO: Implement
 	return ""
+}
+
+func (dialector Dialector) setupContext() (context.Context, context.CancelFunc) {
+	return context.WithDeadline(context.Background(), time.Now().Add(dialector.Config.Timeout*time.Second))
 }
