@@ -3,12 +3,17 @@ package arango
 import (
 	"context"
 	"fmt"
+	"reflect"
 	"time"
 
 	"gorm.io/gorm"
+	"gorm.io/gorm/callbacks"
 	"gorm.io/gorm/clause"
 	"gorm.io/gorm/migrator"
 	"gorm.io/gorm/schema"
+
+	arangoCallbacks "github.com/joselitofilho/gorm/driver/arango/internal/callbacks"
+	"github.com/joselitofilho/gorm/driver/arango/internal/conn"
 
 	driver "github.com/arangodb/go-driver"
 	"github.com/arangodb/go-driver/http"
@@ -79,7 +84,7 @@ func (dialector Dialector) CreateDatabaseIfNeeded(ctx context.Context, databaseN
 
 // Initialize database based on dialector.Config.
 func (dialector Dialector) Initialize(db *gorm.DB) error {
-	ctx, cancel := dialector.setupContext()
+	ctx, cancel := dialector.SetupContext()
 	defer cancel()
 
 	if dialector.DriverName == "" {
@@ -99,15 +104,6 @@ func (dialector Dialector) Initialize(db *gorm.DB) error {
 		return err
 	}
 	dialector.Connection = connection
-
-	// if dialector.Conn != nil {
-	// 	db.ConnPool = dialector.Conn
-	// } else {
-	// 	db.ConnPool, _ = sql.Open("", "")
-	// 	if err != nil {
-	// 		return err
-	// 	}
-	// }
 
 	client, err := driver.NewClient(driver.ClientConfig{
 		Connection:     connection,
@@ -138,20 +134,26 @@ func (dialector Dialector) Initialize(db *gorm.DB) error {
 	}
 	dialector.Database = database
 
-	db.Dialector = Dialector{
-		DriverName: dialector.DriverName,
-		Config:     dialector.Config,
-		Connection: connection,
-		Client:     client,
-		Database:   database,
+	if dialector.Conn != nil {
+		db.ConnPool = dialector.Conn
+	} else {
+		db.ConnPool = reflect.ValueOf(&conn.ConnPool{Connection: connection, Database: database}).Interface().(gorm.ConnPool)
+		if err != nil {
+			return err
+		}
 	}
+
+	arangoCallbacks.RegisterDefaultCallbacks(db, &callbacks.Config{LastInsertIDReversed: true})
+	// callbacks.RegisterDefaultCallbacks()
+
+	db.Dialector = dialector
 
 	return nil
 }
 
 // CollectionExists checks if a collection exists.
 func (dialector Dialector) CollectionExists(collectionName string) (bool, error) {
-	ctx, cancel := dialector.setupContext()
+	ctx, cancel := dialector.SetupContext()
 	defer cancel()
 
 	var err error
@@ -177,7 +179,7 @@ func (dialector Dialector) CollectionExists(collectionName string) (bool, error)
 
 // CreateCollection ...
 func (dialector Dialector) CreateCollection(name string) (driver.Collection, error) {
-	ctx, cancel := dialector.setupContext()
+	ctx, cancel := dialector.SetupContext()
 	defer cancel()
 
 	if dialector.Database == nil {
@@ -229,6 +231,6 @@ func (dialector Dialector) Explain(sql string, vars ...interface{}) string {
 	return ""
 }
 
-func (dialector Dialector) setupContext() (context.Context, context.CancelFunc) {
+func (dialector Dialector) SetupContext() (context.Context, context.CancelFunc) {
 	return context.WithDeadline(context.Background(), time.Now().Add(dialector.Config.Timeout*time.Second))
 }
