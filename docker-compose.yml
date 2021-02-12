@@ -1,0 +1,27 @@
+version: "3.8"
+
+services:
+  gorm-arango:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    environment:
+      ARANGODB_URI: "http://arangodb:8529"
+    volumes:
+      - .:/src/
+    working_dir: /src/
+    depends_on:
+      - arangodb
+    stdin_open: true
+    tty: true
+
+  arangodb:
+    image: arangodb/arangodb:3.7.2.1
+    environment:
+      ARANGO_NO_AUTH: 1
+    ports:
+      - "8529:8529"
+
+networks:
+  default:
+    name: gorm-network
