@@ -84,7 +84,7 @@ func (dialector Dialector) CreateDatabaseIfNeeded(ctx context.Context, databaseN
 
 // Initialize database based on dialector.Config.
 func (dialector Dialector) Initialize(db *gorm.DB) error {
-	ctx, cancel := dialector.SetupContext()
+	ctx, cancel := dialector.setupContext()
 	defer cancel()
 
 	if dialector.DriverName == "" {
@@ -152,11 +152,7 @@ func (dialector Dialector) Initialize(db *gorm.DB) error {
 }
 
 // CollectionExists checks if a collection exists.
-func (dialector Dialector) CollectionExists(collectionName string) (bool, error) {
-	ctx, cancel := dialector.SetupContext()
-	defer cancel()
-
-	var err error
+func (dialector Dialector) CollectionExists(ctx context.Context, collectionName string) (bool, error) {
 	exists := false
 
 	if dialector.Database == nil {
@@ -178,14 +174,10 @@ func (dialector Dialector) CollectionExists(collectionName string) (bool, error)
 }
 
 // CreateCollection ...
-func (dialector Dialector) CreateCollection(name string) (driver.Collection, error) {
-	ctx, cancel := dialector.SetupContext()
-	defer cancel()
-
+func (dialector Dialector) CreateCollection(ctx context.Context, name string) (driver.Collection, error) {
 	if dialector.Database == nil {
 		return nil, ErrDatabaseConnectionFailed
 	}
-
 	return dialector.Database.CreateCollection(ctx, name, &driver.CreateCollectionOptions{})
 }
 
@@ -208,9 +200,6 @@ func (dialector Dialector) DataTypeOf(field *schema.Field) string {
 // DefaultValueOf ...
 func (dialector Dialector) DefaultValueOf(field *schema.Field) clause.Expression {
 	// TODO: Implement
-	if field.AutoIncrement {
-		return clause.Expr{SQL: "autoincrement"}
-	}
 	return clause.Expr{SQL: ""}
 }
 
@@ -231,6 +220,6 @@ func (dialector Dialector) Explain(sql string, vars ...interface{}) string {
 	return ""
 }
 
-func (dialector Dialector) SetupContext() (context.Context, context.CancelFunc) {
+func (dialector Dialector) setupContext() (context.Context, context.CancelFunc) {
 	return context.WithDeadline(context.Background(), time.Now().Add(dialector.Config.Timeout*time.Second))
 }

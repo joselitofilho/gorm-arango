@@ -43,7 +43,7 @@ func (m Migrator) CurrentDatabase() (name string) {
 func (m Migrator) CreateTable(values ...interface{}) error {
 	return m.RunWithValue(values[0], func(stmt *gorm.Statement) error {
 		if dialector, ok := m.DB.Dialector.(Dialector); ok {
-			_, err := dialector.CreateCollection(stmt.Table)
+			_, err := dialector.CreateCollection(stmt.Context, stmt.Table)
 			return err
 		}
 		return ErrDatabaseConnectionFailed
@@ -57,7 +57,7 @@ func (m Migrator) HasTable(value interface{}) bool {
 
 	err = m.RunWithValue(value, func(stmt *gorm.Statement) error {
 		if dialector, ok := m.DB.Dialector.(Dialector); ok {
-			hasTable, err = dialector.CollectionExists(stmt.Table)
+			hasTable, err = dialector.CollectionExists(stmt.Context, stmt.Table)
 			return err
 		}
 		return ErrDatabaseConnectionFailed

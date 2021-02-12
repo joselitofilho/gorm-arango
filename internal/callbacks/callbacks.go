@@ -7,5 +7,5 @@ import (
 
 func RegisterDefaultCallbacks(db *gorm.DB, config *callbacks.Config) {
 	createCallback := db.Callback().Create()
-	createCallback.Register("gorm:create", Create(config))
+	createCallback.Register("arango:create", Create(config))
 }
