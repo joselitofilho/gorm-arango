@@ -138,13 +138,9 @@ func (dialector Dialector) Initialize(db *gorm.DB) error {
 		db.ConnPool = dialector.Conn
 	} else {
 		db.ConnPool = reflect.ValueOf(&conn.ConnPool{Connection: connection, Database: database}).Interface().(gorm.ConnPool)
-		if err != nil {
-			return err
-		}
 	}
 
 	callbacks.RegisterDefaultCallbacks(db, &gormCallbacks.Config{LastInsertIDReversed: true})
-	// gormCallbacks.RegisterDefaultCallbacks(db, &gormCallbacks.Config{LastInsertIDReversed: true})
 
 	db.Dialector = dialector
 
