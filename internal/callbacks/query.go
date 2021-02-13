@@ -3,11 +3,11 @@ package callbacks
 import (
 	"errors"
 	"fmt"
+	"strconv"
 	"strings"
 
 	"github.com/arangodb/go-driver"
 	"github.com/joselitofilho/gorm/driver/arango/internal/conn"
-	"github.com/joselitofilho/gorm/driver/arango/internal/options"
 	"github.com/joselitofilho/gorm/driver/arango/internal/transformers"
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
@@ -63,23 +63,42 @@ func Query(db *gorm.DB) {
 // BuildAQL ...
 func BuildAQL(db *gorm.DB) (query string, bindingFields map[string]interface{}, err error) {
 	// FOR doc IN @@collection FILTER doc.DeleteAt == null AND doc.ID == @docID RETURN doc
-	// filters := " FILTER doc.DeleteAt == null "
-	db.Statement.Build("WHERE")
-	whereStr := strings.TrimSpace(strings.Replace(db.Statement.SQL.String(), "WHERE", "", 1))
-
-	optsFilters, err := transformers.GetFiltersByQuery(whereStr, nil)
-	if err != nil {
-		return
-	}
 
 	bindingFields = map[string]interface{}{"@collection": db.Statement.Table}
 
-	filters, err := formattedFilter(optsFilters, bindingFields)
-	if err != nil {
-		return
+	db.Statement.Build("OFFSET")
+	offsetStr := strings.TrimSpace(strings.ReplaceAll(db.Statement.SQL.String(), "OFFSET", ""))
+	db.Statement.SQL.Reset()
+	offset := 0
+	if len(offsetStr) > 0 {
+		if offset, err = strconv.Atoi(offsetStr); err != nil {
+			offset = 0
+		}
+	}
+	bindingFields["offset"] = offset
+
+	db.Statement.Build("LIMIT")
+	limitStr := strings.TrimSpace(strings.ReplaceAll(db.Statement.SQL.String(), "LIMIT", ""))
+	db.Statement.SQL.Reset()
+	limit := 250
+	if len(limitStr) > 0 {
+		if limit, err = strconv.Atoi(limitStr); err != nil {
+			limit = 250
+		}
+	}
+	bindingFields["limit"] = limit
+
+	db.Statement.Build("WHERE")
+	whereStr := strings.TrimSpace(strings.Replace(db.Statement.SQL.String(), "WHERE", "", 1))
+	filters := ""
+	if len(whereStr) > 0 {
+		filters, err = formattedFilter(whereStr, bindingFields)
+		if err != nil {
+			return
+		}
 	}
 
-	query = fmt.Sprintf("FOR doc IN @@collection FILTER doc.DeleteAt == null %s RETURN doc", filters)
+	query = fmt.Sprintf("FOR doc IN @@collection FILTER doc.DeleteAt == null %s LIMIT @offset, @limit RETURN doc", filters)
 
 	// TODO: limit, offset and sort.
 
@@ -97,7 +116,12 @@ func prepareFieldBindings(fieldName string, bindingFields map[string]interface{}
 }
 
 // formattedFilter returns formatted string and bindingFields.
-func formattedFilter(filters []options.Filter, bindingFields map[string]interface{}) (string, error) {
+func formattedFilter(query string, bindingFields map[string]interface{}) (string, error) {
+	filters, err := transformers.GetFiltersByQuery(query, nil)
+	if err != nil {
+		return "", err
+	}
+
 	formattedFilterSlice := []string{}
 	for index, filter := range filters {
 		fieldKey := fmt.Sprintf("field_filter_%d", index)
