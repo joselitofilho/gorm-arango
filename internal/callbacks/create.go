@@ -23,7 +23,7 @@ func Create(config *callbacks.Config) func(db *gorm.DB) {
 				modelMap := map[string]interface{}{}
 				now := time.Now()
 				model := gorm.Model{
-					ID:        uint(now.UnixNano()), // TODO: check this later...
+					ID:        uint(now.UnixNano() / 1000), // TODO: check this later...
 					CreatedAt: now,
 					UpdatedAt: now,
 				}

@@ -141,6 +141,7 @@ func (dialector Dialector) Initialize(db *gorm.DB) error {
 	}
 
 	callbacks.RegisterDefaultCallbacks(db, &gormCallbacks.Config{LastInsertIDReversed: true})
+	// gormCallbacks.RegisterDefaultCallbacks(db, &gormCallbacks.Config{LastInsertIDReversed: true})
 
 	db.Dialector = dialector
 
