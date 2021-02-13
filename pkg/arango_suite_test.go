@@ -13,6 +13,14 @@ import (
 	"gorm.io/gorm"
 )
 
+type User struct {
+	gorm.Model
+	Name  string
+	Email string
+}
+
+var gormDB *gorm.DB
+
 func setupContext() (context.Context, context.CancelFunc) {
 	return context.WithDeadline(context.Background(), time.Now().Add(120*time.Second))
 }
@@ -48,11 +56,17 @@ var _ = BeforeSuite(func() {
 		MaxConnectionRetries: 10,
 	}
 
-	db, err := gorm.Open(arango.Open(arangodbConfig), &gorm.Config{})
-	Expect(err).NotTo(HaveOccurred())
-	dialector := db.Dialector.(arango.Dialector)
+	By("Connecting to the ArangoDB", func() {
+		db, err := gorm.Open(arango.Open(arangodbConfig), &gorm.Config{})
+		Expect(err).NotTo(HaveOccurred())
+		gormDB = db
+	})
+})
+
+var _ = AfterSuite(func() {
+	dialector := gormDB.Dialector.(arango.Dialector)
 	Expect(dialector).NotTo(BeNil())
-	err = dialector.Database.Remove(context.Background())
+	err := dialector.Database.Remove(context.Background())
 	Expect(err).NotTo(HaveOccurred())
 })
 
