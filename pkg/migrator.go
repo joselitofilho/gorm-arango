@@ -1,6 +1,7 @@
 package arango
 
 import (
+	driver "github.com/arangodb/go-driver"
 	"gorm.io/gorm"
 	"gorm.io/gorm/migrator"
 )
@@ -43,11 +44,37 @@ func (m Migrator) CurrentDatabase() (name string) {
 func (m Migrator) CreateTable(values ...interface{}) error {
 	return m.RunWithValue(values[0], func(stmt *gorm.Statement) error {
 		if dialector, ok := m.DB.Dialector.(Dialector); ok {
-			_, err := dialector.CreateCollection(stmt.Context, stmt.Table)
+			if dialector.Database == nil {
+				return ErrDatabaseConnectionFailed
+			}
+			_, err := dialector.Database.CreateCollection(stmt.Context, stmt.Table, &driver.CreateCollectionOptions{})
 			return err
 		}
 		return ErrDatabaseConnectionFailed
 	})
+}
+
+// DropTable ...
+func (m Migrator) DropTable(values ...interface{}) error {
+	values = m.ReorderModels(values, false)
+	for i := len(values) - 1; i >= 0; i-- {
+		if err := m.RunWithValue(values[i], func(stmt *gorm.Statement) error {
+			if dialector, ok := m.DB.Dialector.(Dialector); ok {
+				if hasTable := m.HasTable(stmt.Table); hasTable {
+					collection, err := dialector.Database.Collection(stmt.Context, stmt.Table)
+					if err != nil {
+						return err
+					}
+					return collection.Remove(stmt.Context)
+				}
+				return nil
+			}
+			return ErrDatabaseConnectionFailed
+		}); err != nil {
+			return err
+		}
+	}
+	return nil
 }
 
 // HasTable ...
@@ -57,7 +84,7 @@ func (m Migrator) HasTable(value interface{}) bool {
 
 	err = m.RunWithValue(value, func(stmt *gorm.Statement) error {
 		if dialector, ok := m.DB.Dialector.(Dialector); ok {
-			hasTable, err = dialector.CollectionExists(stmt.Context, stmt.Table)
+			hasTable, err = dialector.Database.CollectionExists(stmt.Context, stmt.Table)
 			return err
 		}
 		return ErrDatabaseConnectionFailed

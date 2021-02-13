@@ -7,12 +7,12 @@ import (
 	"time"
 
 	"gorm.io/gorm"
-	"gorm.io/gorm/callbacks"
+	gormCallbacks "gorm.io/gorm/callbacks"
 	"gorm.io/gorm/clause"
 	"gorm.io/gorm/migrator"
 	"gorm.io/gorm/schema"
 
-	arangoCallbacks "github.com/joselitofilho/gorm/driver/arango/internal/callbacks"
+	"github.com/joselitofilho/gorm/driver/arango/internal/callbacks"
 	"github.com/joselitofilho/gorm/driver/arango/internal/conn"
 
 	driver "github.com/arangodb/go-driver"
@@ -143,47 +143,16 @@ func (dialector Dialector) Initialize(db *gorm.DB) error {
 		}
 	}
 
-	arangoCallbacks.RegisterDefaultCallbacks(db, &callbacks.Config{LastInsertIDReversed: true})
-	// callbacks.RegisterDefaultCallbacks()
+	callbacks.RegisterDefaultCallbacks(db, &gormCallbacks.Config{LastInsertIDReversed: true})
+	// gormCallbacks.RegisterDefaultCallbacks(db, &gormCallbacks.Config{LastInsertIDReversed: true})
 
 	db.Dialector = dialector
 
 	return nil
 }
 
-// CollectionExists checks if a collection exists.
-func (dialector Dialector) CollectionExists(ctx context.Context, collectionName string) (bool, error) {
-	exists := false
-
-	if dialector.Database == nil {
-		return false, ErrDatabaseConnectionFailed
-	}
-
-	collections, err := dialector.Database.Collections(ctx)
-	if err != nil {
-		return false, err
-	}
-
-	for _, c := range collections {
-		if c.Name() == collectionName {
-			exists = true
-		}
-	}
-
-	return exists, nil
-}
-
-// CreateCollection ...
-func (dialector Dialector) CreateCollection(ctx context.Context, name string) (driver.Collection, error) {
-	if dialector.Database == nil {
-		return nil, ErrDatabaseConnectionFailed
-	}
-	return dialector.Database.CreateCollection(ctx, name, &driver.CreateCollectionOptions{})
-}
-
 // Migrator ...
 func (dialector Dialector) Migrator(db *gorm.DB) gorm.Migrator {
-	// TODO: Implement
 	return Migrator{migrator.Migrator{Config: migrator.Config{
 		DB:                          db,
 		Dialector:                   dialector,
