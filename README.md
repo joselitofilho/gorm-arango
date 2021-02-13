@@ -1,10 +1,35 @@
-# gorm-arango
+# GORM Arango Driver
 
-### gorm
-https://github.com/go-gorm/gorm
-https://gorm.io/docs/
+[Arango](https://www.arangodb.com/) driver for GORM library. Checkout [gorm.io](https://gorm.io) for details.
 
+## USAGE
 
-### Docker
-docker-compose build
-docker-compose up -d
+```go
+import (
+    "gorm.io/gorm"
+    arango "github.com/joselitofilho/gorm/driver/arango/pkg"
+)
+
+type User struct {
+	gorm.Model
+	Name  string
+	Email string
+}
+
+func main() {
+    db, err := gorm.Open(arango.Open(&), &gorm.Config{})
+    if err != nil {
+        panic("failed to connect database")
+    }
+
+    // Migrate the schema
+    db.AutoMigrate(&User{})
+
+    // Create
+    db.Create(&User{Name: "Joselito", Email: "joselitofilhoo@gmail.com"})
+}
+```
+
+## Contributors
+
+Checkout [Contribute](docs/CONTRIBUTING.md) for details.

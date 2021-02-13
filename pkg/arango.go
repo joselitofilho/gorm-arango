@@ -3,12 +3,17 @@ package arango
 import (
 	"context"
 	"fmt"
+	"reflect"
 	"time"
 
 	"gorm.io/gorm"
+	gormCallbacks "gorm.io/gorm/callbacks"
 	"gorm.io/gorm/clause"
 	"gorm.io/gorm/migrator"
 	"gorm.io/gorm/schema"
+
+	"github.com/joselitofilho/gorm/driver/arango/internal/callbacks"
+	"github.com/joselitofilho/gorm/driver/arango/internal/conn"
 
 	driver "github.com/arangodb/go-driver"
 	"github.com/arangodb/go-driver/http"
@@ -100,15 +105,6 @@ func (dialector Dialector) Initialize(db *gorm.DB) error {
 	}
 	dialector.Connection = connection
 
-	// if dialector.Conn != nil {
-	// 	db.ConnPool = dialector.Conn
-	// } else {
-	// 	db.ConnPool, _ = sql.Open("", "")
-	// 	if err != nil {
-	// 		return err
-	// 	}
-	// }
-
 	client, err := driver.NewClient(driver.ClientConfig{
 		Connection:     connection,
 		Authentication: driver.BasicAuthentication(dialector.Config.User, dialector.Config.Password),
@@ -138,58 +134,25 @@ func (dialector Dialector) Initialize(db *gorm.DB) error {
 	}
 	dialector.Database = database
 
-	db.Dialector = Dialector{
-		DriverName: dialector.DriverName,
-		Config:     dialector.Config,
-		Connection: connection,
-		Client:     client,
-		Database:   database,
+	if dialector.Conn != nil {
+		db.ConnPool = dialector.Conn
+	} else {
+		db.ConnPool = reflect.ValueOf(&conn.ConnPool{Connection: connection, Database: database}).Interface().(gorm.ConnPool)
+		if err != nil {
+			return err
+		}
 	}
+
+	callbacks.RegisterDefaultCallbacks(db, &gormCallbacks.Config{LastInsertIDReversed: true})
+	// gormCallbacks.RegisterDefaultCallbacks(db, &gormCallbacks.Config{LastInsertIDReversed: true})
+
+	db.Dialector = dialector
 
 	return nil
 }
 
-// CollectionExists checks if a collection exists.
-func (dialector Dialector) CollectionExists(collectionName string) (bool, error) {
-	ctx, cancel := dialector.setupContext()
-	defer cancel()
-
-	var err error
-	exists := false
-
-	if dialector.Database == nil {
-		return false, ErrDatabaseConnectionFailed
-	}
-
-	collections, err := dialector.Database.Collections(ctx)
-	if err != nil {
-		return false, err
-	}
-
-	for _, c := range collections {
-		if c.Name() == collectionName {
-			exists = true
-		}
-	}
-
-	return exists, nil
-}
-
-// CreateCollection ...
-func (dialector Dialector) CreateCollection(name string) (driver.Collection, error) {
-	ctx, cancel := dialector.setupContext()
-	defer cancel()
-
-	if dialector.Database == nil {
-		return nil, ErrDatabaseConnectionFailed
-	}
-
-	return dialector.Database.CreateCollection(ctx, name, &driver.CreateCollectionOptions{})
-}
-
 // Migrator ...
 func (dialector Dialector) Migrator(db *gorm.DB) gorm.Migrator {
-	// TODO: Implement
 	return Migrator{migrator.Migrator{Config: migrator.Config{
 		DB:                          db,
 		Dialector:                   dialector,
@@ -206,9 +169,6 @@ func (dialector Dialector) DataTypeOf(field *schema.Field) string {
 // DefaultValueOf ...
 func (dialector Dialector) DefaultValueOf(field *schema.Field) clause.Expression {
 	// TODO: Implement
-	if field.AutoIncrement {
-		return clause.Expr{SQL: "autoincrement"}
-	}
 	return clause.Expr{SQL: ""}
 }
 

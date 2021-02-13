@@ -1,9 +1,6 @@
 package arango_test
 
 import (
-	"os"
-
-	"github.com/sirupsen/logrus"
 	"gorm.io/gorm"
 
 	arango "github.com/joselitofilho/gorm/driver/arango/pkg"
@@ -19,23 +16,10 @@ type User struct {
 }
 
 var _ = Describe("ArangoDB Dialector", func() {
-	logrus.SetLevel(logrus.DebugLevel)
-
-	arangodbUri := os.Getenv("ARANGODB_URI")
-	if arangodbUri == "" {
-		arangodbUri = "http://localhost:8529"
-	}
-	arangodbConfig := &arango.Config{
-		URI:                  arangodbUri,
-		User:                 "user",
-		Password:             "password",
-		Database:             "gorm-arango-test",
-		Timeout:              120,
-		MaxConnectionRetries: 10,
-	}
+	arangoDBTestConfig := newArangoDBTestConfig()
 
 	It("connects to a ArangoDB server", func() {
-		db, err := gorm.Open(arango.Open(arangodbConfig), &gorm.Config{})
+		db, err := gorm.Open(arango.Open(arangoDBTestConfig), &gorm.Config{})
 		Expect(db).NotTo(BeNil())
 		Expect(err).NotTo(HaveOccurred())
 	})
@@ -44,21 +28,40 @@ var _ = Describe("ArangoDB Dialector", func() {
 		var db *gorm.DB
 
 		BeforeEach(func() {
-			_db, err := gorm.Open(arango.Open(arangodbConfig), &gorm.Config{})
+			_db, err := gorm.Open(arango.Open(arangoDBTestConfig), &gorm.Config{})
 			Expect(err).NotTo(HaveOccurred())
 			Expect(_db).NotTo(BeNil())
 			db = _db
 
-			err = db.AutoMigrate(&User{})
+			err = db.Migrator().DropTable(&User{})
 			Expect(err).NotTo(HaveOccurred())
 		})
 
-		FIt("Creating a collection", func() {
-			tx := db.Create(&User{
+		It("creates a collection", func() {
+			err := db.AutoMigrate(&User{})
+			Expect(err).NotTo(HaveOccurred())
+		})
+
+		It("inserts a record into the collection", func() {
+			err := db.AutoMigrate(&User{})
+			Expect(err).NotTo(HaveOccurred())
+
+			user := &User{
 				Name:  "Joselito",
 				Email: "joselitofilhoo@gmail.com",
-			})
+			}
+			tx := db.Create(user)
 			Expect(tx).NotTo(BeNil())
+			Expect(tx.Error).To(BeNil())
+			Expect(tx.Statement.Dest).NotTo(BeNil())
+
+			newUser := tx.Statement.Dest.(*User)
+			Expect(newUser.ID).NotTo(BeZero())
+			Expect(newUser.Name).To(Equal(user.Name))
+			Expect(newUser.Email).To(Equal(user.Email))
+			Expect(newUser.CreatedAt).NotTo(BeZero())
+			Expect(newUser.UpdatedAt).NotTo(BeZero())
+			Expect(newUser.DeletedAt).To(BeZero())
 		})
 	})
 })
