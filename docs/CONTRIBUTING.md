@@ -37,6 +37,16 @@ A good way of making sure everything is all right is running the test suite:
 go test -v -count=1 ./...
 ```
 
+## Runtime configuration
+
+| ENV key                        | Default value            | Description                                                         |
+| ------------------------------ | ------------------------ | ------------------------------------------------------------------- |
+| LOGRUS_LEVEL                   | "info"                   | Logging level (trace, debug, info, etc).                            |
+| ARANGODB_URI                   | "http://localhost:8529"  | URI where to find the ArangoDB server (including protocol and port) |
+| ARANGODB_DATABASE              | "test"                   | ArangoDB database                                                   |
+| ARANGODB_USER                  | "user"                   | ArangoDB user                                                       |
+| ARANGODB_PASSWORD              | "password"               | ArangoDB user password                                              |
+
 ## Create a commit
 
 Commit messages should be well formatted, and to make that "standardized", we
