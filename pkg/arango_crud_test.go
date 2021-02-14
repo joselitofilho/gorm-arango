@@ -3,6 +3,7 @@ package arango_test
 import (
 	"fmt"
 
+	"github.com/joselitofilho/gorm/driver/arango/internal/transformers"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 )
@@ -19,6 +20,21 @@ var _ = Describe("ArangoDB CRUD", func() {
 	})
 
 	Context("Create", func() {
+		It("", func() {
+			m := map[string]interface{}{
+				"ID":    1234,
+				"Name":  "Joselito",
+				"Email": "joselitofilhoo@gmail.com",
+			}
+			transformers.MapToSlice(m)
+		})
+
+		It("", func() {
+			slice := []interface{}{"ID", 1234, "Name", "Joselito", "Email", "joselitofilhoo@gmail.com"}
+			m := make(map[string]interface{}, len(slice)/2)
+			transformers.SliceToMap(slice, m)
+		})
+
 		It("inserts a record into the collection", func() {
 			user := &User{
 				Name:  "Joselito",

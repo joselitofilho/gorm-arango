@@ -1,41 +1,32 @@
 package callbacks
 
 import (
-	"errors"
 	"fmt"
 	"strconv"
 	"strings"
 
-	"github.com/arangodb/go-driver"
-	"github.com/joselitofilho/gorm/driver/arango/internal/conn"
+	"github.com/joselitofilho/gorm/driver/arango/internal/aql"
+	"github.com/joselitofilho/gorm/driver/arango/internal/transformers"
 	"gorm.io/gorm"
 )
 
 func Query(db *gorm.DB) {
 	if db.Error == nil {
-		connection := db.Statement.ConnPool.(*conn.ConnPool)
-		if collection, err := connection.Database.Collection(db.Statement.Context, db.Statement.Table); err == nil {
-			query, vars, err := BuildAQL(db)
-			if err != nil {
-				db.AddError(err)
-				return
-			}
-
-			cursor, err := collection.Database().Query(db.Statement.Context, query, vars)
-			if err != nil {
-				db.AddError(err)
-				return
-			}
-			defer cursor.Close()
-			_, err = cursor.ReadDocument(db.Statement.Context, db.Statement.Dest)
-			if driver.IsNoMoreDocuments(err) {
-				db.AddError(errors.New("Document not found"))
-				return
-			} else if err != nil {
-				db.AddError(err)
-				return
-			}
+		query, vars, err := BuildAQL(db)
+		if err != nil {
+			db.AddError(err)
+			return
 		}
+
+		// TODO: To be continued...
+		db.Statement.Vars = transformers.MapToSlice(vars)
+		db.Statement.Vars = append(db.Statement.Vars, db.Statement.Dest)
+		result, err := db.Statement.ConnPool.ExecContext(db.Statement.Context, query, db.Statement.Vars...)
+		if err != nil {
+			db.AddError(err)
+			return
+		}
+		db.Statement.Dest = result.(aql.Result).Result()
 	}
 }
 
@@ -67,9 +58,15 @@ func BuildAQL(db *gorm.DB) (query string, bindingFields map[string]interface{}, 
 
 	db.Statement.Build("WHERE")
 	filters := db.Statement.SQL.String()
+	filterVars := map[string]interface{}{}
+	transformers.SliceToMap(db.Statement.Vars, filterVars)
+	for k, v := range filterVars {
+		bindingFields[k] = v
+	}
 
 	// TODO: To be continued...
 	query = fmt.Sprintf("FOR doc IN @@collection FILTER doc.DeleteAt == null %s LIMIT @offset, @limit RETURN doc", filters)
+	fmt.Println(query, db.Statement.Vars)
 
 	// TODO: sort.
 

@@ -25,9 +25,9 @@ func RegisterDefaultClauses(db *gorm.DB) {
 				builder.WriteByte(' ')
 			}
 
-			c.Build(builder)
+			// c.Build(builder)
 			// TODO: To be continued...
-			// filterClause.Build(builder)
+			filterClause.Build(builder)
 
 			if c.AfterExpression != nil {
 				builder.WriteByte(' ')

@@ -13,6 +13,7 @@ import (
 	"gorm.io/gorm/schema"
 
 	"github.com/joselitofilho/gorm/driver/arango/internal/callbacks"
+	"github.com/joselitofilho/gorm/driver/arango/internal/clause"
 	"github.com/joselitofilho/gorm/driver/arango/internal/conn"
 
 	driver "github.com/arangodb/go-driver"
@@ -141,7 +142,7 @@ func (dialector Dialector) Initialize(db *gorm.DB) error {
 	}
 
 	// TODO: To be continued...
-	// clause.RegisterDefaultClauses(db)
+	clause.RegisterDefaultClauses(db)
 
 	callbacks.RegisterDefaultCallbacks(db, &gormCallbacks.Config{LastInsertIDReversed: true})
 
@@ -174,7 +175,7 @@ func (dialector Dialector) DefaultValueOf(field *schema.Field) gormClause.Expres
 // BindVarTo ...
 func (dialector Dialector) BindVarTo(writer gormClause.Writer, stmt *gorm.Statement, v interface{}) {
 	// TODO: Implement
-	writer.WriteString("@%s")
+	// writer.WriteString("@%s")
 }
 
 // QuoteTo ...
