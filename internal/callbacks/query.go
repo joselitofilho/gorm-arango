@@ -10,27 +10,7 @@ import (
 	"github.com/joselitofilho/gorm/driver/arango/internal/conn"
 	"github.com/joselitofilho/gorm/driver/arango/internal/transformers"
 	"gorm.io/gorm"
-	"gorm.io/gorm/clause"
 )
-
-type ArangoBuilder struct {
-	strings.Builder
-}
-
-func (b *ArangoBuilder) WriteQuoted(field interface{}) {
-
-}
-func (b *ArangoBuilder) AddVar(clause.Writer, ...interface{}) {
-
-}
-
-func (b *ArangoBuilder) WriteByte(byte) error {
-	return nil
-}
-
-func (b *ArangoBuilder) WriteString(string) (int, error) {
-	return 0, nil
-}
 
 func Query(db *gorm.DB) {
 	if db.Error == nil {
