@@ -41,8 +41,6 @@ func newArangoDBTestConfig() *arango.Config {
 }
 
 var _ = BeforeSuite(func() {
-	logrus.SetLevel(logrus.DebugLevel)
-
 	arangodbUri := os.Getenv("ARANGODB_URI")
 	if arangodbUri == "" {
 		arangodbUri = "http://localhost:8529"
@@ -71,6 +69,7 @@ var _ = AfterSuite(func() {
 })
 
 func TestArangodb(t *testing.T) {
+	logrus.SetLevel(logrus.DebugLevel)
 	RegisterFailHandler(Fail)
 	RunSpecs(t, "ArangoDB Suite")
 }

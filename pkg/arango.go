@@ -8,11 +8,12 @@ import (
 
 	"gorm.io/gorm"
 	gormCallbacks "gorm.io/gorm/callbacks"
-	"gorm.io/gorm/clause"
+	gormClause "gorm.io/gorm/clause"
 	"gorm.io/gorm/migrator"
 	"gorm.io/gorm/schema"
 
 	"github.com/joselitofilho/gorm/driver/arango/internal/callbacks"
+	"github.com/joselitofilho/gorm/driver/arango/internal/clause"
 	"github.com/joselitofilho/gorm/driver/arango/internal/conn"
 
 	driver "github.com/arangodb/go-driver"
@@ -140,8 +141,9 @@ func (dialector Dialector) Initialize(db *gorm.DB) error {
 		db.ConnPool = reflect.ValueOf(&conn.ConnPool{Connection: connection, Database: database}).Interface().(gorm.ConnPool)
 	}
 
+	clause.RegisterDefaultClauses(db)
+
 	callbacks.RegisterDefaultCallbacks(db, &gormCallbacks.Config{LastInsertIDReversed: true})
-	// gormCallbacks.RegisterDefaultCallbacks(db, &gormCallbacks.Config{LastInsertIDReversed: true})
 
 	db.Dialector = dialector
 
@@ -164,19 +166,19 @@ func (dialector Dialector) DataTypeOf(field *schema.Field) string {
 }
 
 // DefaultValueOf ...
-func (dialector Dialector) DefaultValueOf(field *schema.Field) clause.Expression {
+func (dialector Dialector) DefaultValueOf(field *schema.Field) gormClause.Expression {
 	// TODO: Implement
-	return clause.Expr{SQL: ""}
+	return gormClause.Expr{SQL: ""}
 }
 
 // BindVarTo ...
-func (dialector Dialector) BindVarTo(writer clause.Writer, stmt *gorm.Statement, v interface{}) {
+func (dialector Dialector) BindVarTo(writer gormClause.Writer, stmt *gorm.Statement, v interface{}) {
 	// TODO: Implement
-	writer.WriteString("@%s")
+	// writer.WriteString("@%s")
 }
 
 // QuoteTo ...
-func (dialector Dialector) QuoteTo(writer clause.Writer, str string) {
+func (dialector Dialector) QuoteTo(writer gormClause.Writer, str string) {
 	// TODO: Implement
 }
 

@@ -27,6 +27,7 @@ var _ = Describe("ArangoDB CRUD", func() {
 			tx := gormDB.Create(user)
 			Expect(tx).NotTo(BeNil())
 			Expect(tx.Error).To(BeNil())
+			Expect(tx.Statement.RowsAffected).To(BeEquivalentTo(1))
 			Expect(tx.Statement.Dest).NotTo(BeNil())
 
 			newUser := tx.Statement.Dest.(*User)
