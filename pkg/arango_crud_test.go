@@ -56,7 +56,7 @@ var _ = Describe("ArangoDB CRUD", func() {
 			Expect(user.ID).NotTo(BeZero())
 		})
 
-		It("retrieves the user by id", func() {
+		FIt("retrieves the user by id", func() {
 			var getUser User
 			tx := gormDB.Find(&getUser, fmt.Sprintf("{\"ID\": %d}", user.ID))
 			Expect(tx).NotTo(BeNil())

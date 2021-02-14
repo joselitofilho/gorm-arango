@@ -8,7 +8,6 @@ import (
 
 	"github.com/arangodb/go-driver"
 	"github.com/joselitofilho/gorm/driver/arango/internal/conn"
-	"github.com/joselitofilho/gorm/driver/arango/internal/transformers"
 	"gorm.io/gorm"
 )
 
@@ -67,54 +66,12 @@ func BuildAQL(db *gorm.DB) (query string, bindingFields map[string]interface{}, 
 	bindingFields["limit"] = limit
 
 	db.Statement.Build("WHERE")
-	whereStr := strings.TrimSpace(strings.Replace(db.Statement.SQL.String(), "WHERE", "", 1))
-	filters := ""
-	if len(whereStr) > 0 {
-		filters, err = formattedFilter(whereStr, bindingFields)
-		if err != nil {
-			return
-		}
-	}
+	filters := db.Statement.SQL.String()
 
+	// TODO: To be continued...
 	query = fmt.Sprintf("FOR doc IN @@collection FILTER doc.DeleteAt == null %s LIMIT @offset, @limit RETURN doc", filters)
 
 	// TODO: sort.
 
 	return
-}
-
-func prepareFieldBindings(fieldName string, bindingFields map[string]interface{}) string {
-	fields := strings.Split(fieldName, ".")
-	result := strings.Join(fields, ".@")
-	for _, field := range fields {
-		bindingFields[field] = field
-	}
-
-	return result
-}
-
-// formattedFilter returns formatted string and bindingFields.
-func formattedFilter(query string, bindingFields map[string]interface{}) (string, error) {
-	filters, err := transformers.GetFiltersByQuery(query, nil)
-	if err != nil {
-		return "", err
-	}
-
-	formattedFilterSlice := []string{}
-	for index, filter := range filters {
-		fieldKey := fmt.Sprintf("field_filter_%d", index)
-		operator, err := filter.GetOperator()
-		if err != nil {
-			return "", err
-		}
-		formattedFields := prepareFieldBindings(filter.Field, bindingFields)
-		formattedFilterSlice = append(formattedFilterSlice, fmt.Sprintf("doc.@%s %s @%s", formattedFields, operator, fieldKey))
-		bindingFields[fieldKey] = filter.Value
-	}
-	formattedFilter := ""
-	if len(formattedFilterSlice) > 0 {
-		formattedFilter = "FILTER " + strings.Join(formattedFilterSlice, " AND ")
-	}
-
-	return formattedFilter, nil
 }
