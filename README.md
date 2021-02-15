@@ -17,7 +17,7 @@ type User struct {
 }
 
 func main() {
-    db, err := gorm.Open(arango.Open(&), &gorm.Config{})
+    db, err := gorm.Open(arango.Open(&arango.Config{}), &gorm.Config{})
     if err != nil {
         panic("failed to connect database")
     }
