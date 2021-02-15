@@ -17,7 +17,7 @@ type User struct {
 }
 
 func main() {
-    db, err := gorm.Open(arango.Open(&), &gorm.Config{})
+    db, err := gorm.Open(arango.Open(&arango.Config{}), &gorm.Config{})
     if err != nil {
         panic("failed to connect database")
     }
@@ -27,6 +27,11 @@ func main() {
 
     // Create
     db.Create(&User{Name: "Joselito", Email: "joselitofilhoo@gmail.com"})
+
+    // Read
+    var user User
+    db.Find(&user, "{\"ID\": 1}") // find user with ID = 1
+    db.First(&user, "{\"Name\": Joselito}") // find first user with Name is Joselito
 }
 ```
 

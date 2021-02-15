@@ -37,6 +37,12 @@ A good way of making sure everything is all right is running the test suite:
 go test -v -count=1 ./...
 ```
 
+Check the coverage of code:
+```sh
+go test -coverpkg=./... -coverprofile="coverage.out" -v -count=1 ./...
+go tool cover -html="coverage.out" -o="coverage.html"
+```
+
 ## Runtime configuration
 
 | ENV key                        | Default value            | Description                                                         |
