@@ -6,7 +6,7 @@ import (
 	. "github.com/onsi/gomega"
 )
 
-var _ = FDescribe("Transformers", func() {
+var _ = Describe("Transformers", func() {
 	It("converts map to slice", func() {
 		m := map[string]interface{}{
 			"ID":    1234,
