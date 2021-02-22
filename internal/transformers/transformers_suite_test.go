@@ -8,7 +8,7 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-func TestArangodb(t *testing.T) {
+func TestTransformersSuite(t *testing.T) {
 	logrus.SetLevel(logrus.DebugLevel)
 	RegisterFailHandler(Fail)
 	RunSpecs(t, "Transformers Suite")

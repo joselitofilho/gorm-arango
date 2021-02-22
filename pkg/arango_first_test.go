@@ -51,4 +51,15 @@ var _ = Describe("ArangoDB First", func() {
 		Expect(getUser.Email).To(Equal(user1.Email))
 		Expect(getUser.Email).NotTo(Equal(user2.Email))
 	})
+
+	When("not exists the user for the informed condition", func() {
+		It("returns a 'not found' error", func() {
+			var getUser User
+			tx := gormDB.First(&getUser, fmt.Sprintf("{\"Name\": \"Ze\"}"))
+			Expect(tx).NotTo(BeNil())
+			Expect(tx.Error).NotTo(BeNil())
+			Expect(tx.Error.Error()).To(ContainSubstring("not found"))
+			Expect(getUser.Name).To(Equal(""))
+		})
+	})
 })

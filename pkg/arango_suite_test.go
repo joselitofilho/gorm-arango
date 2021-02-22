@@ -68,7 +68,7 @@ var _ = AfterSuite(func() {
 	Expect(err).NotTo(HaveOccurred())
 })
 
-func TestArangodb(t *testing.T) {
+func TestArangoSuite(t *testing.T) {
 	logrus.SetLevel(logrus.DebugLevel)
 	RegisterFailHandler(Fail)
 	RunSpecs(t, "ArangoDB Suite")
