@@ -15,6 +15,7 @@ import (
 	"github.com/joselitofilho/gorm/driver/arango/internal/callbacks"
 	"github.com/joselitofilho/gorm/driver/arango/internal/clause"
 	"github.com/joselitofilho/gorm/driver/arango/internal/conn"
+	"github.com/joselitofilho/gorm/driver/arango/internal/errors"
 
 	driver "github.com/arangodb/go-driver"
 	"github.com/arangodb/go-driver/http"
@@ -124,14 +125,14 @@ func (dialector Dialector) Initialize(db *gorm.DB) error {
 		if err != nil {
 			nextBackOff := expBackoff.NextBackOff()
 			logEntry.WithError(err).Errorf("ArangoDB opening database connection failed. Retrying in %v...", nextBackOff)
-			return ErrOpeningDatabaseConnectionFailedWithRetry(fmt.Sprintf("Retrying in %v...", nextBackOff))
+			return errors.ErrOpeningDatabaseConnectionFailedWithRetry(fmt.Sprintf("Retrying in %v...", nextBackOff))
 		}
 		return err
 	}
 	err = backoff.Retry(operation, expBackoff)
 	if err != nil {
 		logEntry.WithError(err).Error("ArangoDB opening database connection failed")
-		return ErrOpeningDatabaseConnectionFailed
+		return errors.ErrOpeningDatabaseConnectionFailed
 	}
 	dialector.Database = database
 

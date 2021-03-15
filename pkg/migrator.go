@@ -2,6 +2,7 @@ package arango
 
 import (
 	driver "github.com/arangodb/go-driver"
+	"github.com/joselitofilho/gorm/driver/arango/internal/errors"
 	"gorm.io/gorm"
 	"gorm.io/gorm/migrator"
 )
@@ -45,12 +46,12 @@ func (m Migrator) CreateTable(values ...interface{}) error {
 	return m.RunWithValue(values[0], func(stmt *gorm.Statement) error {
 		if dialector, ok := m.DB.Dialector.(Dialector); ok {
 			if dialector.Database == nil {
-				return ErrDatabaseConnectionFailed
+				return errors.ErrDatabaseConnectionFailed
 			}
 			_, err := dialector.Database.CreateCollection(stmt.Context, stmt.Table, &driver.CreateCollectionOptions{})
 			return err
 		}
-		return ErrDatabaseConnectionFailed
+		return errors.ErrDatabaseConnectionFailed
 	})
 }
 
@@ -69,7 +70,7 @@ func (m Migrator) DropTable(values ...interface{}) error {
 				}
 				return nil
 			}
-			return ErrDatabaseConnectionFailed
+			return errors.ErrDatabaseConnectionFailed
 		}); err != nil {
 			return err
 		}
@@ -87,7 +88,7 @@ func (m Migrator) HasTable(value interface{}) bool {
 			hasTable, err = dialector.Database.CollectionExists(stmt.Context, stmt.Table)
 			return err
 		}
-		return ErrDatabaseConnectionFailed
+		return errors.ErrDatabaseConnectionFailed
 	})
 	if err != nil {
 		panic(err)
