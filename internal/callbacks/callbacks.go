@@ -11,4 +11,7 @@ func RegisterDefaultCallbacks(db *gorm.DB, config *callbacks.Config) {
 
 	queryCallback := db.Callback().Query()
 	queryCallback.Register("arango:query", Query)
+
+	updateCallback := db.Callback().Update()
+	updateCallback.Register("arango:update", Update)
 }
