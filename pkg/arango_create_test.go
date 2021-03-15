@@ -7,8 +7,15 @@ import (
 
 var _ = Describe("ArangoDB Create", func() {
 	var _ = BeforeEach(func() {
-		err := gormDB.AutoMigrate(&User{})
-		Expect(err).NotTo(HaveOccurred())
+		By("dropping collection", func() {
+			err := gormDB.Migrator().DropTable(&User{})
+			Expect(err).NotTo(HaveOccurred())
+		})
+
+		By("preparing collection", func() {
+			err := gormDB.AutoMigrate(&User{})
+			Expect(err).NotTo(HaveOccurred())
+		})
 	})
 
 	var _ = AfterEach(func() {

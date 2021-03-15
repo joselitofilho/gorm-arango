@@ -12,12 +12,17 @@ var _ = Describe("ArangoDB First", func() {
 	var user2 User
 
 	var _ = BeforeEach(func() {
+		By("dropping collection", func() {
+			err := gormDB.Migrator().DropTable(&User{})
+			Expect(err).NotTo(HaveOccurred())
+		})
+
 		By("preparing collection", func() {
 			err := gormDB.AutoMigrate(&User{})
 			Expect(err).NotTo(HaveOccurred())
 		})
 
-		By("creating registers", func() {
+		By("creating users", func() {
 			newUser := &User{Name: "Joselito", Email: "joselitofilhoo@gmail.com"}
 			tx := gormDB.Create(newUser)
 			Expect(tx).NotTo(BeNil())
