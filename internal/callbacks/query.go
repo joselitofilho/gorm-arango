@@ -50,6 +50,8 @@ func Query(db *gorm.DB) {
 				db.AddError(err)
 				return
 			}
+		} else {
+			db.RowsAffected = 1
 		}
 	}
 }
