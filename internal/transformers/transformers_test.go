@@ -21,4 +21,18 @@ var _ = Describe("Transformers", func() {
 		m := transformers.SliceToMap(slice)
 		Expect(m).To(HaveLen(3))
 	})
+	It("converts entity to map", func() {
+		obj := struct {
+			Name  string
+			Email string
+		}{
+			Name:  "Joselito",
+			Email: "joselitofilhoo@gmail.com",
+		}
+		m, err := transformers.EntityToMap(&obj)
+		Expect(err).To(BeNil())
+		Expect(m).To(HaveLen(2))
+		Expect(m["Name"]).To(Equal("Joselito"))
+		Expect(m["Email"]).To(Equal("joselitofilhoo@gmail.com"))
+	})
 })
