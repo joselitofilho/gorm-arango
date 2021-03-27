@@ -33,9 +33,12 @@ func main() {
     db.Find(&user, "{\"ID\": 1}") // find user with ID = 1
     db.First(&user, "{\"Name\": Joselito}") // find first user with Name is Joselito
 
-    // Update
+    // Update - update user's name to Zelito.
     user.Name = "Zelito"
-    db.Save(&user) // update user's name to Zelito.
+    db.Save(&user)
+
+    // Update - update user's name to Ze.
+    db.Model(&user).Update("Name", "Ze")
 }
 ```
 

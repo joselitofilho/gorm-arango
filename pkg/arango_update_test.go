@@ -5,8 +5,8 @@ import (
 	. "github.com/onsi/gomega"
 )
 
-var _ = Describe("ArangoDB Save", func() {
-	var user User
+var _ = Describe("ArangoDB Update", func() {
+	var userJoselito User
 
 	var _ = BeforeEach(func() {
 		By("dropping collection", func() {
@@ -26,8 +26,8 @@ var _ = Describe("ArangoDB Save", func() {
 			Expect(tx.Error).To(BeNil())
 			Expect(tx.Statement.Dest).NotTo(BeNil())
 
-			user = *tx.Statement.Dest.(*User)
-			Expect(user.ID).NotTo(BeZero())
+			userJoselito = *tx.Statement.Dest.(*User)
+			Expect(userJoselito.ID).NotTo(BeZero())
 		})
 	})
 
@@ -36,10 +36,9 @@ var _ = Describe("ArangoDB Save", func() {
 		Expect(err).NotTo(HaveOccurred())
 	})
 
-	It("update all fields", func() {
-		newName := "Zelito"
-		user.Name = newName
-		tx := gormDB.Save(&user)
+	It("update user's name field", func() {
+		newName := "Ze"
+		tx := gormDB.Model(&userJoselito).Update("Name", newName)
 		Expect(tx).NotTo(BeNil())
 		Expect(tx.Error).To(BeNil())
 		Expect(tx.RowsAffected).To(BeEquivalentTo(1))
@@ -48,7 +47,7 @@ var _ = Describe("ArangoDB Save", func() {
 		tx = gormDB.First(&getUser)
 		Expect(tx).NotTo(BeNil())
 		Expect(tx.Error).To(BeNil())
-		Expect(getUser.Email).To(Equal(user.Email))
+		Expect(getUser.Email).To(Equal(userJoselito.Email))
 		Expect(getUser.Name).To(Equal(newName))
 	})
 })
