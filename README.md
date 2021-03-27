@@ -42,7 +42,7 @@ func main() {
     db.Model(&user).Update("Name", "Ze")
     // Update - update multiple fields
     db.Model(&user).Updates(User{Name: "Ze", Age: 33}) // including non-zero fields. Updates user's name to Ze, age to 33 and email to empty.
-    db.Model(&product).Updates(map[string]interface{}{"Name": "Ze", "Age": 33}) // updates just user's name to Ze and age to 33.
+    db.Model(&user).Updates(map[string]interface{}{"Name": "Ze", "Age": 33}) // updates just user's name to Ze and age to 33.
 }
 ```
 
