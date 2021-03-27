@@ -35,6 +35,9 @@ func Update(db *gorm.DB) {
 			}
 
 			entityMap["UpdatedAt"] = time.Now()
+			delete(entityMap, "ID")
+			delete(entityMap, "CreatedAt")
+			delete(entityMap, "DeletedAt")
 
 			if _, err := collection.UpdateDocument(db.Statement.Context, docMetaInfo.Key, entityMap); err != nil {
 				db.AddError(err)

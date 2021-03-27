@@ -17,6 +17,7 @@ type User struct {
 	gorm.Model
 	Name  string
 	Email string
+	Age   uint
 }
 
 var gormDB *gorm.DB
