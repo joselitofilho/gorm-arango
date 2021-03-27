@@ -1,5 +1,7 @@
 package transformers
 
+import "encoding/json"
+
 func MapToSlice(m map[string]interface{}) []interface{} {
 	slice := make([]interface{}, len(m)*2)
 	i := 0
@@ -22,4 +24,18 @@ func SliceToMap(input []interface{}) map[string]interface{} {
 		}
 	}
 	return output
+}
+
+func EntityToMap(entity interface{}) (map[string]interface{}, error) {
+	data, err := json.Marshal(entity)
+	if err != nil {
+		return nil, err
+	}
+
+	modelMap := map[string]interface{}{}
+	if err := json.Unmarshal(data, &modelMap); err != nil {
+		return nil, err
+	}
+
+	return modelMap, nil
 }

@@ -5,7 +5,7 @@ import (
 	. "github.com/onsi/gomega"
 )
 
-var _ = Describe("ArangoDB First", func() {
+var _ = Describe("ArangoDB Save", func() {
 	var user User
 
 	var _ = BeforeEach(func() {

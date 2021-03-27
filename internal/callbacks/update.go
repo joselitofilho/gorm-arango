@@ -2,12 +2,12 @@ package callbacks
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
 	"time"
 
 	"github.com/arangodb/go-driver"
 	"github.com/joselitofilho/gorm/driver/arango/internal/conn"
+	"github.com/joselitofilho/gorm/driver/arango/internal/transformers"
 	"gorm.io/gorm"
 )
 
@@ -15,18 +15,29 @@ func Update(db *gorm.DB) {
 	if !db.DryRun && db.Error == nil {
 		connection := db.Statement.ConnPool.(*conn.ConnPool)
 		if collection, err := connection.Database.Collection(db.Statement.Context, db.Statement.Table); err == nil {
-			entityMap := map[string]interface{}{}
-			data, _ := json.Marshal(db.Statement.Dest)
-			_ = json.Unmarshal(data, &entityMap)
+			modelMap, err := transformers.EntityToMap(db.Statement.Model)
+			if err != nil {
+				db.AddError(err)
+				return
+			}
 
-			bindKeysVars := map[string]interface{}{"ID": entityMap["ID"]}
-			docMetaInfo, err := getMeta(db.Statement.Context, collection, bindKeysVars, db.Statement.Dest)
+			entityMap, err := transformers.EntityToMap(db.Statement.Dest)
+			if err != nil {
+				db.AddError(err)
+				return
+			}
+
+			bindKeysVars := map[string]interface{}{"ID": modelMap["ID"]}
+			docMetaInfo, err := getMeta(db.Statement.Context, collection, bindKeysVars, db.Statement.Model)
 			if err != nil {
 				db.AddError(err)
 				return
 			}
 
 			entityMap["UpdatedAt"] = time.Now()
+			delete(entityMap, "ID")
+			delete(entityMap, "CreatedAt")
+			delete(entityMap, "DeletedAt")
 
 			if _, err := collection.UpdateDocument(db.Statement.Context, docMetaInfo.Key, entityMap); err != nil {
 				db.AddError(err)
