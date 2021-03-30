@@ -7,7 +7,7 @@ import (
 	"gorm.io/gorm"
 	"gorm.io/gorm/callbacks"
 
-	"github.com/joselitofilho/gorm/driver/arango/internal/conn"
+	"github.com/joselitofilho/gorm-arango/internal/conn"
 	"github.com/mitchellh/mapstructure"
 )
 

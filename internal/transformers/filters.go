@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"reflect"
 
-	"github.com/joselitofilho/gorm/driver/arango/internal/options"
+	"github.com/joselitofilho/gorm-arango/internal/options"
 )
 
 // GetFiltersByQuery ...

@@ -7,7 +7,7 @@ import (
 	"reflect"
 
 	driver "github.com/arangodb/go-driver"
-	"github.com/joselitofilho/gorm/driver/arango/internal/transformers"
+	"github.com/joselitofilho/gorm-arango/internal/transformers"
 )
 
 type ConnPoolReturn struct {

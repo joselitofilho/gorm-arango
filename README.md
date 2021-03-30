@@ -7,7 +7,7 @@
 ```go
 import (
     "gorm.io/gorm"
-    arango "github.com/joselitofilho/gorm/driver/arango/pkg"
+    arango "github.com/joselitofilho/gorm-arango/pkg"
 )
 
 type User struct {

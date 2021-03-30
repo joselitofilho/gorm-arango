@@ -12,10 +12,10 @@ import (
 	"gorm.io/gorm/migrator"
 	"gorm.io/gorm/schema"
 
-	"github.com/joselitofilho/gorm/driver/arango/internal/callbacks"
-	"github.com/joselitofilho/gorm/driver/arango/internal/clause"
-	"github.com/joselitofilho/gorm/driver/arango/internal/conn"
-	"github.com/joselitofilho/gorm/driver/arango/internal/errors"
+	"github.com/joselitofilho/gorm-arango/internal/callbacks"
+	"github.com/joselitofilho/gorm-arango/internal/clause"
+	"github.com/joselitofilho/gorm-arango/internal/conn"
+	"github.com/joselitofilho/gorm-arango/internal/errors"
 
 	driver "github.com/arangodb/go-driver"
 	"github.com/arangodb/go-driver/http"

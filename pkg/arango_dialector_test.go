@@ -3,7 +3,7 @@ package arango_test
 import (
 	"gorm.io/gorm"
 
-	arango "github.com/joselitofilho/gorm/driver/arango/pkg"
+	arango "github.com/joselitofilho/gorm-arango/pkg"
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
