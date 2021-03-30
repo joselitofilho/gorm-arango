@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/joselitofilho/gorm/driver/arango/internal/transformers"
+	"github.com/joselitofilho/gorm-arango/internal/transformers"
 	gormClause "gorm.io/gorm/clause"
 )
 

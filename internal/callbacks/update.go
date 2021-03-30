@@ -6,8 +6,8 @@ import (
 	"time"
 
 	"github.com/arangodb/go-driver"
-	"github.com/joselitofilho/gorm/driver/arango/internal/conn"
-	"github.com/joselitofilho/gorm/driver/arango/internal/transformers"
+	"github.com/joselitofilho/gorm-arango/internal/conn"
+	"github.com/joselitofilho/gorm-arango/internal/transformers"
 	"gorm.io/gorm"
 )
 

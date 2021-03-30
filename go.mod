@@ -1,4 +1,4 @@
-module github.com/joselitofilho/gorm/driver/arango
+module github.com/joselitofilho/gorm-arango
 
 go 1.15
 

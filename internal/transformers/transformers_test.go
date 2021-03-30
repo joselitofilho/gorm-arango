@@ -1,7 +1,7 @@
 package transformers_test
 
 import (
-	"github.com/joselitofilho/gorm/driver/arango/internal/transformers"
+	"github.com/joselitofilho/gorm-arango/internal/transformers"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 )

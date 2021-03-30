@@ -7,8 +7,8 @@ import (
 	"reflect"
 	"time"
 
-	"github.com/joselitofilho/gorm/driver/arango/internal/conn"
-	"github.com/joselitofilho/gorm/driver/arango/internal/errors"
+	"github.com/joselitofilho/gorm-arango/internal/conn"
+	"github.com/joselitofilho/gorm-arango/internal/errors"
 	"gorm.io/gorm"
 	"gorm.io/gorm/schema"
 )

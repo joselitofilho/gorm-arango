@@ -2,7 +2,7 @@ package arango
 
 import (
 	driver "github.com/arangodb/go-driver"
-	"github.com/joselitofilho/gorm/driver/arango/internal/errors"
+	"github.com/joselitofilho/gorm-arango/internal/errors"
 	"gorm.io/gorm"
 	"gorm.io/gorm/migrator"
 )
