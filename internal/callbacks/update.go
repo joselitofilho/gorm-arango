@@ -58,13 +58,15 @@ func Update(db *gorm.DB) {
 }
 
 func getMeta(ctx context.Context, collection driver.Collection, bindKeyVars map[string]interface{}, result interface{}) (*driver.DocumentMeta, error) {
-	// TODO: We should create a field to customizer it.
-	filters := " FILTER doc.DeletedAt == null "
+	aliasWithoutDot := collection.Name()
+	alias := aliasWithoutDot + "."
+
+	filters := fmt.Sprintf(" FILTER %sDeletedAt == null ", alias)
 	for key := range bindKeyVars {
-		filters += fmt.Sprintf(" AND doc.%s == @%s ", key, key)
+		filters += fmt.Sprintf(" AND %s%s == @%s ", alias, key, key)
 	}
 
-	query := fmt.Sprintf("FOR doc IN %s %s RETURN doc", collection.Name(), filters)
+	query := fmt.Sprintf("FOR %s IN %s %s RETURN %s", aliasWithoutDot, aliasWithoutDot, filters, aliasWithoutDot)
 
 	cursor, err := collection.Database().Query(ctx, query, bindKeyVars)
 	if err != nil {
@@ -75,7 +77,7 @@ func getMeta(ctx context.Context, collection driver.Collection, bindKeyVars map[
 	documentMetaInfo, err := cursor.ReadDocument(ctx, result)
 	if driver.IsNoMoreDocuments(err) {
 		// TODO: Create a better error
-		return nil, fmt.Errorf("Entity not found")
+		return nil, fmt.Errorf("entity not found")
 	} else if err != nil {
 		return nil, err
 	}
