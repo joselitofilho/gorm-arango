@@ -31,8 +31,8 @@ func main() {
 
     // Read
     var user User
-    db.Find(&user, "{\"ID\": 1}") // find user with ID = 1
-    db.First(&user, "{\"Name\": Joselito}") // find first user with Name is Joselito
+    db.Find(&user, `{"ID": 1}`) // find user with ID = 1
+    db.First(&user, `{"Name": Joselito}`) // find first user with Name is Joselito
 
     // Update - update user's name to Zelito.
     user.Name = "Zelito"

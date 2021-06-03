@@ -1,8 +1,6 @@
 package arango_test
 
 import (
-	"fmt"
-
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 )
@@ -50,7 +48,7 @@ var _ = Describe("ArangoDB First", func() {
 
 	It("retrieves the first record by name", func() {
 		var getUser User
-		tx := gormDB.First(&getUser, fmt.Sprintf("{\"Name\": \"Joselito\"}"))
+		tx := gormDB.First(&getUser, `{"Name": "Joselito"}`)
 		Expect(tx).NotTo(BeNil())
 		Expect(tx.Error).To(BeNil())
 		Expect(tx.RowsAffected).To(BeEquivalentTo(1))
@@ -61,7 +59,7 @@ var _ = Describe("ArangoDB First", func() {
 	When("not exists the user for the informed condition", func() {
 		It("returns a 'not found' error", func() {
 			var getUser User
-			tx := gormDB.First(&getUser, fmt.Sprintf("{\"Name\": \"Ze\"}"))
+			tx := gormDB.First(&getUser, `{"Name": "Ze"}`)
 			Expect(tx).NotTo(BeNil())
 			Expect(tx.Error).NotTo(BeNil())
 			Expect(tx.Error.Error()).To(ContainSubstring("not found"))
