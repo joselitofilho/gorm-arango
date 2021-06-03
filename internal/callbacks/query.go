@@ -38,8 +38,7 @@ func Query(db *gorm.DB) {
 			IsSlice:  isSlice,
 		}
 
-		_, err := db.Statement.ConnPool.QueryContext(db.Statement.Context, db.Statement.SQL.String(), db.Statement.Vars...)
-		if err != nil {
+		if _, err := db.Statement.ConnPool.QueryContext(db.Statement.Context, db.Statement.SQL.String(), db.Statement.Vars...); err != nil {
 			db.AddError(err)
 			return
 		}
@@ -61,11 +60,11 @@ func buildAQL(db *gorm.DB) {
 	db.Statement.Vars = append(db.Statement.Vars, "@collection", db.Statement.Table)
 
 	// TODO: sort.
-	db.Statement.Build("WHERE", "LIMIT")
+	db.Statement.Build("WHERE", "ORDER BY", "LIMIT")
 
 	// TODO: select.
+	// TODO: We should create a field to customizer it.
 	db.Statement.SQL.WriteString(" RETURN doc")
-
 }
 
 func rowColumns(model interface{}) ([]string, error) {
