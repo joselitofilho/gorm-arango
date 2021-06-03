@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/joselitofilho/gorm-arango/internal/session"
 	"github.com/joselitofilho/gorm-arango/internal/transformers"
 	gormClause "gorm.io/gorm/clause"
 )
@@ -58,8 +59,11 @@ func formattedFilter(query string, bindingFields map[string]interface{}) (string
 			return "", err
 		}
 		formattedFields := prepareFieldBindings(filter.Field, bindingFields)
-		// TODO: We should create a field to customizer it.
-		formattedFilterSlice = append(formattedFilterSlice, fmt.Sprintf("doc.@%s %s @%s", formattedFields, operator, fieldKey))
+		alias := ""
+		if sessionAlias, ok := session.Session()["alias"]; ok {
+			alias = sessionAlias + "."
+		}
+		formattedFilterSlice = append(formattedFilterSlice, fmt.Sprintf("%s@%s %s @%s", alias, formattedFields, operator, fieldKey))
 		bindingFields[fieldKey] = filter.Value
 	}
 	formattedFilter := ""

@@ -10,6 +10,7 @@ import (
 
 	"github.com/joselitofilho/gorm-arango/internal/conn"
 	"github.com/joselitofilho/gorm-arango/internal/errors"
+	"github.com/joselitofilho/gorm-arango/internal/session"
 	"gorm.io/gorm"
 	"gorm.io/gorm/schema"
 )
@@ -59,22 +60,28 @@ func Query(db *gorm.DB) {
 }
 
 func buildAQL(db *gorm.DB) {
+	alias := db.Statement.Table
+	session.Session()["alias"] = alias
+
 	// TODO: Think better about that.
 	db.Statement.Build("ORDER BY")
 	sort := db.Statement.SQL.String()
 	sort = strings.ReplaceAll(sort, "SORT .", "")
 	db.Statement.SQL.Reset()
 
-	db.Statement.SQL.WriteString("FOR doc IN @@collection FILTER doc.DeleteAt == null ")
-	db.Statement.Vars = append(db.Statement.Vars, "@collection", db.Statement.Table)
+	firstPart := fmt.Sprintf("FOR %s IN @@collection FILTER %s.DeleteAt == null ", alias, alias)
+	db.Statement.SQL.WriteString(firstPart)
+	db.Statement.Vars = append(db.Statement.Vars, "@collection", alias)
 
 	db.Statement.Build("WHERE", "LIMIT")
 
 	db.Statement.SQL.WriteString(sort)
 
 	// TODO: select.
-	// TODO: We should create a field to customizer it.
-	db.Statement.SQL.WriteString(" RETURN doc")
+	returnPart := fmt.Sprintf(" RETURN %s", alias)
+	db.Statement.SQL.WriteString(returnPart)
+
+	delete(session.Session(), "alias")
 }
 
 func rowColumns(model interface{}) ([]string, error) {

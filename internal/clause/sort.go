@@ -3,6 +3,7 @@ package clause
 import (
 	"strings"
 
+	"github.com/joselitofilho/gorm-arango/internal/session"
 	gormClause "gorm.io/gorm/clause"
 )
 
@@ -38,8 +39,10 @@ func (sort Sort) Build(builder gormClause.Builder) {
 					if idy > 0 {
 						builder.WriteString(", ")
 					}
-					// TODO: We should create a field to customizer it.
-					builder.WriteString("doc.")
+					if alias, ok := session.Session()["alias"]; ok {
+						alias = alias + "."
+						builder.WriteString(alias)
+					}
 					builder.WriteString(strings.TrimSpace(internalCol))
 					if column.Desc {
 						builder.WriteString(" DESC")
