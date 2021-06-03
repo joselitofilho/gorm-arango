@@ -2,7 +2,7 @@
 
 [Arango](https://www.arangodb.com/) driver for GORM library. Checkout [gorm.io](https://gorm.io) for details.
 
-## USAGE
+## Usage
 
 ```go
 import (
@@ -45,6 +45,10 @@ func main() {
     db.Model(&user).Updates(map[string]interface{}{"Name": "Ze", "Age": 33}) // updates just user's name to Ze and age to 33.
 }
 ```
+
+## Advanced Query
+
+[Here](docs/advanced_query) is what else you can do with GORM.
 
 ## Contributors
 

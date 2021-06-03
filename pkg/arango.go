@@ -175,7 +175,7 @@ func (dialector Dialector) DefaultValueOf(field *schema.Field) gormClause.Expres
 // BindVarTo ...
 func (dialector Dialector) BindVarTo(writer gormClause.Writer, stmt *gorm.Statement, v interface{}) {
 	// TODO: Implement
-	// writer.WriteString("@%s")
+	// writer.WriteString(fmt.Sprintf("%v", v))
 }
 
 // QuoteTo ...

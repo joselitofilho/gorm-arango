@@ -23,18 +23,25 @@ Create a docker container:
 
 ```sh
 docker-compose build  # only first time
-docker-compose up
+docker-compose up -d
+```
+
+Enter the container (if you do not have Go insalled on you machine):
+
+```sh
+docker-compose exec gorm-arango bash
 ```
 
 Install the build and lint dependencies:
+
 ```sh
-go get -v ./...
+go get ./...
 ```
 
 A good way of making sure everything is all right is running the test suite:
 
 ```sh
-go test -v -count=1 ./...
+go test -count=1 ./...
 ```
 
 Check the coverage of code:
