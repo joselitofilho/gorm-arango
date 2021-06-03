@@ -26,14 +26,22 @@ func (sort Sort) Build(builder gormClause.Builder) {
 				builder.WriteByte(',')
 			}
 
-			internalColumns := strings.Split(column.Column.Name, ",")
-			for idy, internalCol := range internalColumns {
-				if idy > 0 {
-					builder.WriteString(", ")
+			columnName := strings.ToLower(column.Column.Name)
+			if strings.Contains(columnName, "asc") || strings.Contains(columnName, "desc") {
+				internalColumns := strings.Split(column.Column.Name, ",")
+				for idy, internalCol := range internalColumns {
+					if idy > 0 {
+						builder.WriteString(", ")
+					}
+					// TODO: We should create a field to customizer it.
+					builder.WriteString("doc.")
+					builder.WriteString(strings.TrimSpace(internalCol))
+					if column.Desc {
+						builder.WriteString(" DESC")
+					}
 				}
-				// TODO: We should create a field to customizer it.
-				builder.WriteString("doc.")
-				builder.WriteString(strings.TrimSpace(internalCol))
+			} else {
+				builder.WriteQuoted(column.Column)
 				if column.Desc {
 					builder.WriteString(" DESC")
 				}

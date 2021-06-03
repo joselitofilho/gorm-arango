@@ -57,7 +57,7 @@ var _ = Describe("ArangoDB Find", func() {
 
 	It("retrieves the user by ID", func() {
 		var getUser User
-		tx := gormDB.Find(&getUser, fmt.Sprintf("{\"ID\": %d}", joselitoUser.ID))
+		tx := gormDB.Find(&getUser, fmt.Sprintf(`{"ID": %d}`, joselitoUser.ID))
 		Expect(tx).NotTo(BeNil())
 		Expect(tx.Error).To(BeNil())
 		Expect(tx.RowsAffected).To(BeEquivalentTo(1))
@@ -72,7 +72,7 @@ var _ = Describe("ArangoDB Find", func() {
 	When("there is more than one user in the result query", func() {
 		It("retrieves the two users with ID > 0", func() {
 			var users []User
-			tx := gormDB.Find(&users, fmt.Sprintf("{\"ID\": {\"$gt\": %d}}", 0))
+			tx := gormDB.Find(&users, fmt.Sprintf(`{"ID": {"$gt": %d}}`, 0))
 			Expect(tx).NotTo(BeNil())
 			Expect(tx.Error).To(BeNil())
 			Expect(tx.RowsAffected).To(BeEquivalentTo(2))
@@ -84,7 +84,7 @@ var _ = Describe("ArangoDB Find", func() {
 	When("operator is $eq", func() {
 		It("returns user to the passed user.ID", func() {
 			var getUser User
-			tx := gormDB.Find(&getUser, fmt.Sprintf("{\"ID\": {\"$eq\": %d}}", joselitoUser.ID))
+			tx := gormDB.Find(&getUser, fmt.Sprintf(`{"ID": {"$eq": %d}}`, joselitoUser.ID))
 			Expect(tx).NotTo(BeNil())
 			Expect(tx.Error).To(BeNil())
 			Expect(tx.RowsAffected).To(BeEquivalentTo(1))
@@ -95,7 +95,7 @@ var _ = Describe("ArangoDB Find", func() {
 	When("operator is $gt", func() {
 		It("returns the first user with an ID greater than zero", func() {
 			var getUser User
-			tx := gormDB.Find(&getUser, fmt.Sprintf("{\"ID\": {\"$gt\": %d}}", 0))
+			tx := gormDB.Find(&getUser, fmt.Sprintf(`{"ID": {"$gt": %d}}`, 0))
 			Expect(tx).NotTo(BeNil())
 			Expect(tx.Error).To(BeNil())
 			Expect(tx.RowsAffected).To(BeEquivalentTo(1))
@@ -106,7 +106,7 @@ var _ = Describe("ArangoDB Find", func() {
 	When("user.ID passed does not exist in the database", func() {
 		It("returns a 'not found' error", func() {
 			var getUser User
-			tx := gormDB.Find(&getUser, fmt.Sprintf("{\"ID\": %d}", joselitoUser.ID+1))
+			tx := gormDB.Find(&getUser, fmt.Sprintf(`{"ID": %d}`, joselitoUser.ID+1))
 			Expect(tx).NotTo(BeNil())
 			Expect(tx.Error).NotTo(BeNil())
 			Expect(tx.Error.Error()).To(Equal("Document not found"))
@@ -117,7 +117,7 @@ var _ = Describe("ArangoDB Find", func() {
 	When("ID passed is invalid", func() {
 		It("returns a 'not found' error", func() {
 			var getUser User
-			tx := gormDB.Find(&getUser, fmt.Sprintf("{\"ID\": %d}", -1))
+			tx := gormDB.Find(&getUser, fmt.Sprintf(`{"ID": %d}`, -1))
 			Expect(tx).NotTo(BeNil())
 			Expect(tx.Error).NotTo(BeNil())
 			Expect(tx.Error.Error()).To(Equal("Document not found"))

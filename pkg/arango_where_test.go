@@ -46,7 +46,7 @@ var _ = Describe("ArangoDB Where", func() {
 
 	It("retrieves the first record by: id > 0 AND age >= 18 AND age < 40", func() {
 		var getUser User
-		tx := gormDB.Where(`{"ID": {"$gt": 0}}`).Where(gormDB.Where(`{"age": {"$gte": 18}}`).Where(`{"age": {"$lt": 40}}`)).First(&getUser)
+		tx := gormDB.Where(`{"ID": {"$gt": 0}}`).Where(gormDB.Where(`{"Age": {"$gte": 18}}`).Where(`{"Age": {"$lt": 40}}`)).First(&getUser)
 		Expect(tx).NotTo(BeNil())
 		Expect(tx.Error).To(BeNil())
 		Expect(tx.RowsAffected).To(BeEquivalentTo(1))

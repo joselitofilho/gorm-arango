@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"reflect"
+	"strings"
 	"time"
 
 	"github.com/joselitofilho/gorm-arango/internal/conn"
@@ -38,7 +39,9 @@ func Query(db *gorm.DB) {
 			IsSlice:  isSlice,
 		}
 
-		if _, err := db.Statement.ConnPool.QueryContext(db.Statement.Context, db.Statement.SQL.String(), db.Statement.Vars...); err != nil {
+		aql := db.Statement.SQL.String()
+		if _, err := db.Statement.ConnPool.QueryContext(db.Statement.Context, aql, db.Statement.Vars...); err != nil {
+			db.AddError(fmt.Errorf("AQL = %s", aql))
 			db.AddError(err)
 			return
 		}
@@ -56,11 +59,18 @@ func Query(db *gorm.DB) {
 }
 
 func buildAQL(db *gorm.DB) {
+	// TODO: Think better about that.
+	db.Statement.Build("ORDER BY")
+	sort := db.Statement.SQL.String()
+	sort = strings.ReplaceAll(sort, "SORT .", "")
+	db.Statement.SQL.Reset()
+
 	db.Statement.SQL.WriteString("FOR doc IN @@collection FILTER doc.DeleteAt == null ")
 	db.Statement.Vars = append(db.Statement.Vars, "@collection", db.Statement.Table)
 
-	// TODO: sort.
-	db.Statement.Build("WHERE", "ORDER BY", "LIMIT")
+	db.Statement.Build("WHERE", "LIMIT")
+
+	db.Statement.SQL.WriteString(sort)
 
 	// TODO: select.
 	// TODO: We should create a field to customizer it.
