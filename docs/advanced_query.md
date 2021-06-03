@@ -17,8 +17,10 @@ type APIUser struct {
 	Name string
 }
 
+var apiUser APIUser
+
 // Select `id`, `name` automatically when querying
-db.Model(&User{}).Limit(1).Find(&APIUser{})
+db.Model(&User{}).Limit(1).Find(&apiUser)
 // FOR u IN users LIMIT 1 RETURN { ID: u.ID, Name: u.Name }
 ```
 
@@ -36,6 +38,6 @@ type User struct {
 
 var user User
 
-db.Where(`{"ID": {"$gt": 0}}"`).Where(db.Where(`{"age": {"$gte": 18}}`).Where(`{"age": {"$lt": 40}}`)).First(&getUser)
+db.Where(`{"ID": {"$gt": 0}}"`).Where(db.Where(`{"age": {"$gte": 18}}`).Where(`{"age": {"$lt": 40}}`)).First(&user)
 // FOR u IN users FILTER u.ID > 0 AND (u.age >= 18 OR u.age < 40) RETURN u
 ```

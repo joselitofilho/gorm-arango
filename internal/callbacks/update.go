@@ -58,6 +58,7 @@ func Update(db *gorm.DB) {
 }
 
 func getMeta(ctx context.Context, collection driver.Collection, bindKeyVars map[string]interface{}, result interface{}) (*driver.DocumentMeta, error) {
+	// TODO: We should create a field to customizer it.
 	filters := " FILTER doc.DeletedAt == null "
 	for key := range bindKeyVars {
 		filters += fmt.Sprintf(" AND doc.%s == @%s ", key, key)

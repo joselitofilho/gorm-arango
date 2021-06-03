@@ -58,6 +58,7 @@ func formattedFilter(query string, bindingFields map[string]interface{}) (string
 			return "", err
 		}
 		formattedFields := prepareFieldBindings(filter.Field, bindingFields)
+		// TODO: We should create a field to customizer it.
 		formattedFilterSlice = append(formattedFilterSlice, fmt.Sprintf("doc.@%s %s @%s", formattedFields, operator, fieldKey))
 		bindingFields[fieldKey] = filter.Value
 	}

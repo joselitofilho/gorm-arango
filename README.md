@@ -46,9 +46,12 @@ func main() {
 }
 ```
 
-## Advanced Query
+## CRUD Interface
 
-[Here](docs/advanced_query) is what else you can do with GORM.
+Here is what else you can do with GORM.
+
+- [Query](./docs/query.md)
+- [Advanced Query](./docs/advanced_query.md)
 
 ## Contributors
 
