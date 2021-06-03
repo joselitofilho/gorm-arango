@@ -26,8 +26,13 @@ func (sort Sort) Build(builder gormClause.Builder) {
 				builder.WriteByte(',')
 			}
 
-			columnName := strings.ToLower(column.Column.Name)
-			if strings.Contains(columnName, "asc") || strings.Contains(columnName, "desc") {
+			columnName := column.Column.Name
+			if columnName == gormClause.PrimaryKey || columnName == gormClause.CurrentTable || columnName == gormClause.Associations {
+				builder.WriteQuoted(column.Column)
+				if column.Desc {
+					builder.WriteString(" DESC")
+				}
+			} else {
 				internalColumns := strings.Split(column.Column.Name, ",")
 				for idy, internalCol := range internalColumns {
 					if idy > 0 {
@@ -39,11 +44,6 @@ func (sort Sort) Build(builder gormClause.Builder) {
 					if column.Desc {
 						builder.WriteString(" DESC")
 					}
-				}
-			} else {
-				builder.WriteQuoted(column.Column)
-				if column.Desc {
-					builder.WriteString(" DESC")
 				}
 			}
 		}

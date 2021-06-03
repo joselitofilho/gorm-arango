@@ -41,7 +41,7 @@ func Query(db *gorm.DB) {
 
 		aql := db.Statement.SQL.String()
 		if _, err := db.Statement.ConnPool.QueryContext(db.Statement.Context, aql, db.Statement.Vars...); err != nil {
-			db.AddError(fmt.Errorf("AQL = %s", aql))
+			// NOTE: for debug: db.AddError(fmt.Errorf("AQL = %s", aql))
 			db.AddError(err)
 			return
 		}
