@@ -4,7 +4,6 @@ import (
 	"context"
 	"os"
 	"testing"
-	"time"
 
 	arango "github.com/joselitofilho/gorm-arango/pkg"
 	. "github.com/onsi/ginkgo"
@@ -21,10 +20,6 @@ type User struct {
 }
 
 var gormDB *gorm.DB
-
-func setupContext() (context.Context, context.CancelFunc) {
-	return context.WithDeadline(context.Background(), time.Now().Add(120*time.Second))
-}
 
 func newArangoDBTestConfig() *arango.Config {
 	arangodbUri := os.Getenv("ARANGODB_URI")
