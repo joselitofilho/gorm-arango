@@ -117,24 +117,29 @@ func (dialector Dialector) Initialize(db *gorm.DB) error {
 	}
 	dialector.Client = client
 
-	expBackoff := backoff.WithMaxRetries(backoff.NewExponentialBackOff(), dialector.Config.MaxConnectionRetries)
-	var database driver.Database
-	operation := func() error {
-		var err error
-		database, err = dialector.CreateDatabaseIfNeeded(ctx, dialector.Config.Database)
-		if err != nil {
-			nextBackOff := expBackoff.NextBackOff()
-			logEntry.WithError(err).Errorf("ArangoDB opening database connection failed. Retrying in %v...", nextBackOff)
-			return errors.ErrOpeningDatabaseConnectionFailedWithRetry(fmt.Sprintf("Retrying in %v...", nextBackOff))
-		}
+	// expBackoff := backoff.WithMaxRetries(backoff.NewExponentialBackOff(), dialector.Config.MaxConnectionRetries)
+	// var database driver.Database
+	// operation := func() error {
+	// 	var err error
+	// 	database, err = dialector.CreateDatabaseIfNeeded(ctx, dialector.Config.Database)
+	// 	if err != nil {
+	// 		nextBackOff := expBackoff.NextBackOff()
+	// 		logEntry.WithError(err).Errorf("ArangoDB opening database connection failed. Retrying in %v...", nextBackOff)
+	// 		return errors.ErrOpeningDatabaseConnectionFailedWithRetry(fmt.Sprintf("Retrying in %v...", nextBackOff))
+	// 	}
+	// 	return err
+	// }
+	// err = backoff.Retry(operation, expBackoff)
+	// if err != nil {
+	// 	logEntry.WithError(err).Error("ArangoDB opening database connection failed")
+	// 	return errors.ErrOpeningDatabaseConnectionFailed
+	// }
+	//dialector.Database = database
+	dialector.Database, err = client.Database(ctx, dialector.Config.Database)
+	if err != nil {
+		logEntry.WithError(err).Error("ArangoDB Open Database" + dialector.Config.Database + " failed")
 		return err
 	}
-	err = backoff.Retry(operation, expBackoff)
-	if err != nil {
-		logEntry.WithError(err).Error("ArangoDB opening database connection failed")
-		return errors.ErrOpeningDatabaseConnectionFailed
-	}
-	dialector.Database = database
 
 	if dialector.Conn != nil {
 		db.ConnPool = dialector.Conn
